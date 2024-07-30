@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Autenticação com React</title>
+  <style>
+    body {
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <h1>
+    Configurando rotas privadas no React
+  </h1>
+  
+  <h2>
+    Estrutura de pastas
+  </h2>
+  
+  <p>
+    <strong>
+      <pre>
+        src/
+        |
+        ├── auth/
+        |    ├── auth.ts
+        |    └── index.ts 
+        |
+        ├── routes/
+        |    ├── private/ 
+        |        ├── index.tsx 
+        |        └── types.ts 
+        |
+        ├── app.tsx
+        ├── main.tsx
+        └── routes.tsx
+      </pre>
+    </strong>
+
+    Na pasta <strong><code>auth</code></strong> deve ser armazenado a lógica da autenticação, enquanto na pasta <strong><code>routes/private</code></strong> deve ficar o componente de rota privada que vai receber a função de autenticação e outros componentes filhos que devem ser renderizados quando a autenticação for permitida.
+
+    Já no arquivo <strong><code>routes.tsx</code></strong> é armazenado nossas rotas com todos os componentes do react-router-dom. Tornar uma rota privada no react não tem nenhum segredo, é apenas lógica. 
+  </p>
+
+  <h1>
+    Autenticação no Frontend
+  </h1>
+
+  <p>
+    Normalmente, o funcionamento de uma autenticação no frontend é o mesmo para qualquer framework. O usuário insere seus dados na aplicação, a aplicação ou browser leva os dados para o servidor e esse servidor nos retorna um token <strong><mark>jwt</mark></strong>.
+  </p>
+
+  <p>
+    Esse token jwt é então armazenado no storage da nossa aplicação, geralmente no local storage ou cookies, e a partir dai, para toda requisição subsequente feita ao backend, o browser envia esse token junto para o servidor saber que o usuário está autenticado e pode acessar determinada funcionalidade.
+  </p>
+
+  <h1>
+    Exemplo de autenticação na prática
+  </h1>
+
+  <p>
+    No nosso arquivo <strong><code>auth.ts</code></strong>, criamos uma função que verifica se o usuário está autenticado ou não. Em um exemplo real, essa função buscaria no localstorage por um token jwt, se encontrasse, a função liberaria o acesso as rotas privadas, caso não, bloqueia o acesso.
+    <code>
+      <strong>
+        <pre>
+          export default function IsAuthenticated() {
+            return true;
+          }
+        </pre>
+      </strong>
+    </code>
+  </p>
+
+  <p>
+    Agora, na nossa pasta <strong><code>routes/private</code></strong>, criamos um componente chamado <strong><code>PrivateRoute</code></strong>. Esse componente terá a mesma função que o componente <strong><code>Route</code></strong> do react-router-dom, com a diferença de que, o conteúdo dessa rota só será exibido se o usuário estiver autenticado.
+    <strong>
+      <code>
+        <pre>
+          export default function PrivateRoute({ IsAuthenticated, children }) {
+            const isAuth = IsAuthenticated() ? children : 'Acesso Negado';
+
+            return (
+              <>
+                {isAuth}
+              />
+            )
+          }
+        </pre>
+      </code>
+    </strong>
+  </p>
+
+  <p>
+    No nosso arquivo <strong><code>routes.tsx</code></strong>, importamos esse componente de rota privado e o inserimos como o elemento da rota em que desejamos proteger, passando como propriedade a função <strong><code>IsAuthenticated()</code></strong> e como children o componente que deve ser renderizado após a confirmação de autenticação.
+    <strong>
+      <code>
+        <pre>
+          export default function AppRoutes() {
+          return (
+          BrowserRouter>
+            Routes>
+              Route path="/" element={Home />}/>
+              Route path="/api/upload" element={ PrivateRoute isAuthenticated={isAuthenticated}>
+                Upload />
+                /PrivateRoute>
+                } />
+            /Routes>
+          /BrowserRouter>
+          );
+          }
+        </pre>
+      </code>
+    </strong>
+  </p>
+
+  <p>
+    A lógica é que, o componente <code><strong>PrivateRoute</strong></code> exiba uma página de login ou página de autenticação, para que o usuário insira seus dados e os envie para o backend para ser verificado. Se passar, o servidor retorna um token que é salvo no localStorage e exibe o conteúdo da rota privada. Note que é preciso verificar se o token está presente em todas as requisições a partir da autenticação.
+  </p>
+
+  <h1>
+    Mapa mental da implementação de autenticação no projeto Portraits
+  </h1>
+
+  <img src="C:\Users\vinic\OneDrive\Imagens\Capturas de tela\mapamentalJWT.png" alt="">
+</body>
+</html>

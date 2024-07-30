@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Web Token</title>
+  <style>
+    body {
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <h1>
+    JSON WEB TOKEN
+  </h1>
+  
+  <p>
+    Um JWT é um padrão aberto que define uma maneira compacta e independente de transmitir dados com segurança utilizando
+    JSON. As informações transmitidas por JWT podem ser verificadas e confiadas pois são assinadas digitalmente. JWTs pode
+    ser assinado utilizando um <mark>segredo</mark> (com o algoritmo <strong>HMAC</strong>) ou um par de chaves
+    pública/privada usando <strong>RSA</strong> ou <strong>ECDSA</strong>.
+  </p>
+  
+  <h2>
+    Quando devemos utilizar JSON Web Tokens
+  </h2>
+  
+  <dl>
+    <dt>
+      <strong>Autorização</strong>
+    </dt>
+    <dd>
+      Esse é o cenário mais comum de uso do JWT. Depois que o usuário estiver logado, cada solicitação subsequente
+      incluirá o JWT, permitindo que o usuário acesse rotas, serviços e recursos permitidos com aquele token.
+    </dd>
+    <dt>
+      <strong>Troca de dados</strong>
+    </dt>
+    <dd>
+      JSON Web Tokens são uma boa maneira de transmitir informações de forma segura entre terceiros. Por causa que JWTs
+      podem ser assinados usando pares de chaves públicas/privadas, nós podemos ter a certeza de que os remetentes são
+      quem dizer ser. Além disso, como a assinatura é calculada usando o header e a carga útil da requisição, nós podemos
+      também verificar se o conteúdo não foi alterado.
+    </dd>
+  </dl>
+  
+  <h2>
+    Qual a estrutura de um JSON Web Token?
+  </h2>
+  
+  <p>
+    Na sua forma compacta, o JWT consiste de três partes separadas por pontos ( . ), que são:
+  <ul>
+    <li>Header</li>
+    <li>Payload</li>
+    <li>Signature</li>
+  </ul>
+  Portanto, um típico JWT se parece com isso:
+  <pre><strong>xxxxx.yyyyy.zzzzz</strong></pre>
+  </p>
+  
+  <h3>
+    Header ou Cabeçalho
+  </h3>
+  
+  <p>
+    O cabeça~ho consiste de duas partes: o tipo do token, o qual é JWT, e a assinatura do algoritmo que está sendo usado,
+    como HMAC SHA256 ou RSA. Por exemplo:
+  <pre>
+        <code>
+          {
+            "alg": "HS256",
+            "typ": "JWT"
+          }
+        </code>
+      </pre>
+  Então, este JSON é codificado em "Base64Url" para formar a primeira parte do JWT.
+  </p>
+  
+  <h3>
+    Payload ou carga útil
+  </h3>
+  
+  <p>
+    A segunda parte do token é a carga útil, que contém as reivindicações. Reivindicações são declarações sobre uma entitade (normalmente, o usuário) e dados adicionais. Existem três tipos de reivindicações: <strong>registradas, públicas e privadas</strong>. 
+
+    <dl>
+      <dt>
+        <strong>
+          Reivindicações registradas 
+        </strong>
+      </dt>
+      <dd>
+        São um set de reivindicações pré-definidas que não são obrigatórias, mas recomendadas, para fornecer um conjunto de declarações úteis e interoperáveis. Alguns deles são: <strong>iss</strong> (Emissor), <strong>exp</strong> (Tempo de expiração), <strong>sub</strong> (Assunto), e outros.
+      </dd>
+      <dt>
+        <strong>
+          Reinvidicações públicas 
+        </strong>
+      </dt>
+      <dd>
+        Podem ser definidas a vontade por aqueles que utilizam JWTs, mas para evitar colisões com outras claims, devem estar definidos no <strong>IANA JSON Web Token Registry</strong>
+        ou ser definidos como uma URI que contém um namespace resistente a colisões.
+      </dd>
+      <dt>
+        <strong>
+          Reivindicações privadas 
+        </strong>
+      </dt>
+      <dd>
+        Estas são reivindicações personalizadas criadas para compartilhar informações entre as partes que concordam em usá-las e não são reivindicações registradas ou públicas.
+      </dd>
+    </dl>
+
+    Um exemplo de payload pode ser :
+    <pre>
+      <strong>
+        {
+          "sub": "1234567890",
+          "name", "John Doe",
+          "admin": true
+        }
+      </strong>
+    </pre>
+    A carga útil é então codificada em Base64Url para formar a segunda parte do JSON Web Token.
+  </p>
+
+  <p>
+    <i>
+      Observe que, para tokens assinados, essas informações, embora protegidas contra adulteração, podem ser lidas por
+      qualquer pessoa. Não coloque informações secretas na carga útil ou nos elementos de cabeçalho de um JWT, a menos que
+      estejam criptografadas.
+    </i>
+  </p>
+
+  <h3>
+    Assinatura
+  </h3>
+
+  <p>
+    Para criar a parte de assinatura, temos que pegar o cabeçalho codificado, o payload codificado, o algoritmo especificado no header e assinar tudo isso.
+  </p>
+
+  <p>
+    Por exemplo, se quisermos usar o algoritmo HMAC SHA256, a assinatura deve ser criada seguindo a estrutura abaixo:
+    <pre>
+      <strong>
+        HMACSHA256(
+          Base64UrlEncode(header) + "." +
+          Base64UrlEncode(payload),
+          secret)
+      </strong>
+    </pre>
+
+    A assinatura é usada para verificar se a mensagem não foi alterada ao longo do caminho e, no caso de tokens assinados com chave privada, também pode verificar se o remetente do JWT é quem diz ser.
+  </p>
+
+  <h3>
+    Juntando tudo
+  </h3>
+
+  <p>
+    O resultado são três strings de URL Base64 separadas por pontos que podem ser facilmente passadas em ambientes HTML e HTTP,
+    sendo mais compactas quando comparadas a padrões baseados em XML, como SAML.
+  </p>
+
+  <h1>
+    Como JWT funciona?
+  </h1>
+
+  <p>
+    Na autenticação, quando o usuário fizer login com sucesso usando suas credenciais, um JSON Web Token será retornado.
+    Como os tokens são credenciais, deve-se tomar muito cuidado para evitar problemas de segurança. Em geral, você não deve
+    manter os tokens por mais tempo do que o necessário.
+  </p>
+
+  <p>
+    Sempre que o usuário desejar acessar uma rota ou recurso protegido, o browser deverá enviar o JWT, normalmente
+    no cabeçalho <strong><code>Authorization</code></strong> usando o esquema <strong><code>Bearer</code></strong>. O conteúdo do cabeçalho deve ser semelhante ao seguinte:
+    <pre>
+      <strong>
+        Authorization: Bearer < token >
+      </strong>
+    </pre>
+
+    As rotas protegidas do servidor verificarão um JWT válido no cabeçalho de autorização e, se estiver presente, o usuário
+    terá permissão para acessar recursos protegidos.
+  </p>
+</body>
+</html>
